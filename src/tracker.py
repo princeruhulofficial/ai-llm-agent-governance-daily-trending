@@ -9,7 +9,7 @@ import os
 import sys
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
@@ -61,6 +61,10 @@ def github_search(query: str, sort: str = "stars", page: int = 1) -> List[Dict]:
         time.sleep(60)
         resp = requests.get(url, headers=headers, params=params, timeout=30)
 
+    if resp.status_code == 422:
+        # Query too complex or invalid – skip silently
+        return []
+
     resp.raise_for_status()
     data = resp.json()
     return data.get("items", [])
@@ -102,7 +106,7 @@ def collect_candidates() -> List[Dict[str, Any]]:
                             "created_at": item.get("created_at", "")[:10],
                             "category_hint": category,
                         })
-                    time.sleep(1.2)  # be nice to the API
+                    time.sleep(1.1)  # be nice to the API
             except Exception as e:
                 print(f"   ⚠️  Query failed: {e}")
                 continue
@@ -180,7 +184,6 @@ def create_issue(title: str, body: str) -> str:
     payload = {
         "title": title,
         "body": body,
-        # labels omitted so it works even if labels don't exist yet
     }
 
     resp = requests.post(url, headers=headers, json=payload, timeout=30)
@@ -197,7 +200,7 @@ def create_issue(title: str, body: str) -> str:
 # Main
 # ---------------------------------------------------------------------------
 def main():
-    today = datetime.utcnow().strftime("%Y-%m-%d")
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     print(f"🚀 Starting Daily Trending Tracker — {today}")
     print(f"   Model: {LLM_MODEL}")
     print(f"   Base URL: {LLM_BASE_URL}")
