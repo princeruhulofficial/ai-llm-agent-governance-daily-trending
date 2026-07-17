@@ -3,52 +3,59 @@ Easy-to-edit configuration for the Daily Trending Tracker.
 Change search queries, categories, or the LLM prompt here.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # How many candidates to pull per search query (max 100, but keep low for rate limits)
-PER_PAGE = 15
+PER_PAGE = 12
 
 # How many total unique candidates to send to the LLM
-MAX_CANDIDATES = 40
+MAX_CANDIDATES = 35
 
 # Minimum stars to consider (helps filter noise)
-MIN_STARS = 5
+MIN_STARS = 8
 
 # Look back window for "recent" activity (days)
-RECENT_DAYS = 45
+RECENT_DAYS = 60
 
 # Categories and their GitHub search queries
-# Tip: Use topic:xxx when possible + keywords. GitHub search is powerful.
+# Simplified to avoid GitHub Search 422 errors (complex OR + date filters)
 CATEGORIES = {
     "AI Agents": [
         'topic:ai-agents',
         'topic:agentic-ai',
         'topic:multi-agent-systems',
-        'topic:langgraph OR topic:crewai OR topic:autogen',
-        '"ai agent" OR "agent framework" OR "tool calling" OR mcp stars:>10',
-        'topic:mcp-server OR "model context protocol"',
+        'topic:langgraph',
+        'topic:crewai',
+        'topic:autogen',
+        '"ai agent" stars:>20',
+        '"agent framework" OR "tool calling"',
+        'topic:mcp OR "model context protocol"',
     ],
     "LLMs": [
-        'topic:llm OR topic:large-language-models',
-        'topic:rag OR topic:retrieval-augmented-generation',
-        'topic:fine-tuning OR "open weight" OR "open-weight" model',
-        'topic:llm-inference OR vllm OR "llama.cpp" OR sglang',
+        'topic:llm',
+        'topic:large-language-models',
+        'topic:rag',
+        'topic:retrieval-augmented-generation',
+        '"open weight" OR "open-weight" model',
+        'vllm OR "llama.cpp" OR sglang',
         'topic:llm-evaluation OR "llm benchmark"',
     ],
     "AI Governance & Safety": [
-        'topic:ai-safety OR topic:ai-alignment',
-        'topic:ai-governance OR topic:responsible-ai',
-        '"ai governance" OR "agent governance" OR "ai safety" OR red-teaming',
-        'constitutional AI OR "policy enforcement" agent OR "least privilege" AI',
-        'topic:prompt-injection OR "prompt injection" defense',
-        '"audit trail" OR "data provenance" OR "AI accountability" agent',
+        'topic:ai-safety',
+        'topic:ai-alignment',
+        'topic:ai-governance',
+        'topic:responsible-ai',
+        '"ai governance" OR "agent governance"',
+        '"ai safety" OR red-teaming',
+        '"prompt injection" OR topic:prompt-injection',
+        '"audit trail" OR "data provenance" AI',
     ],
 }
 
 
 def get_date_filter() -> str:
     """Return the GitHub search date filter for recent repos."""
-    since = (datetime.utcnow() - timedelta(days=RECENT_DAYS)).strftime("%Y-%m-%d")
+    since = (datetime.now(timezone.utc) - timedelta(days=RECENT_DAYS)).strftime("%Y-%m-%d")
     return f"pushed:>{since}"
 
 
