@@ -180,7 +180,7 @@ def create_issue(title: str, body: str) -> str:
     payload = {
         "title": title,
         "body": body,
-        "labels": ["daily-trending", "automated"],
+        # labels omitted so it works even if labels don't exist yet
     }
 
     resp = requests.post(url, headers=headers, json=payload, timeout=30)
