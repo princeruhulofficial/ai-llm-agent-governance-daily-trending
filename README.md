@@ -1,5 +1,4 @@
-# GitHub Trending AI Agents · LLMs · Governance
-
+# GitHub Trending AI Agents ·
 **Daily curated trending repositories** focused on:
 
 - **AI Agents** & Agentic systems (LangGraph, CrewAI, AutoGen, multi-agent, tool-calling, MCP)
